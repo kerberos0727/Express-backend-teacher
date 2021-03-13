@@ -121,7 +121,8 @@ app.use((req, res, next) => {
 
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome!" });
+  // res.json({ message: "Welcome!" });
+  res.sendFile(path.join(__dirname, 'build', 'index.html'))
 });
 
 const db = require("./app/models");
@@ -136,6 +137,11 @@ require("./app/routes/textbook.routes")(app);
 require("./app/routes/languages.routes")(app);
 require("./app/routes/howdidyouhear.routes")(app);
 require("./app/routes/bill.routes")(app);
+require("./app/routes/notes.routes")(app);
+require("./app/routes/lesson.routes")(app);
+require("./app/routes/teacher.routes")(app);
+require("./app/routes/lessoninfo.routes")(app);
+require("./app/routes/topics.routes")(app);
 
 app.post('/upload', function (req, res) {
   upload(req, res, function (err) {

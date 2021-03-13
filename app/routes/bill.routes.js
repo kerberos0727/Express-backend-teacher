@@ -11,8 +11,6 @@ module.exports = function (app) {
     next();
   });
 
-  app.get("/api/bills/all", [authJwt.verifyToken], controller.getAll);
-  // app.get("/api/bills/:userid", [authJwt.verifyToken], controller.getPerson);
-  // app.get("/api/bills/:textbookid", [authJwt.verifyToken], controller.getPerTextbookInfo);
+  app.get("/api/bills/all/:pagenum/:limitnum", [authJwt.verifyToken], controller.getAll);
 
 };

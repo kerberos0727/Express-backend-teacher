@@ -50,5 +50,10 @@ db.textbook = require("./textbook.model.js")(sequelize, Sequelize);
 db.language = require("./language.model.js")(sequelize, Sequelize);
 db.howdidyouhear = require("./howdidyouhear.model.js")(sequelize, Sequelize);
 db.bill = require("./bill.model.js")(sequelize, Sequelize);
+db.notes = require("./notes.model.js")(sequelize, Sequelize);
+db.lessons = require("./lesson.model.js")(sequelize, Sequelize);
+db.teacher = require("./teacher.model.js")(sequelize, Sequelize);
+db.topics = require("./topics.model.js")(sequelize, Sequelize);
+db.lessoninfo = require("./lessoninfo.model.js")(sequelize, Sequelize);
 
 module.exports = db;
