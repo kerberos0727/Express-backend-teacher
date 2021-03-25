@@ -1,5 +1,5 @@
 const db = require("../models");
-const Lessoninfo = db.lessoninfo;
+const lessoninfo = db.lessoninfo;
 const { QueryTypes, sequelize } = require('sequelize');
 
 exports.getAll = async (req, res) => {

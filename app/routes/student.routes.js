@@ -14,6 +14,7 @@ module.exports = function (app) {
   app.post("/api/student/create", [authJwt.verifyToken], controller.create);
   app.get("/api/student/all/:pagenum/:limitnum", [authJwt.verifyToken], controller.getAll);
   app.get("/api/student/:userid", [authJwt.verifyToken], controller.getPerson);
+  app.post("/api/student/search", [authJwt.verifyToken], controller.Search);
   app.put("/api/student/update", [authJwt.verifyToken], controller.update);
   app.delete("/api/student/:userid", [authJwt.verifyToken], controller.delete);
 

@@ -21,7 +21,7 @@ module.exports = (sequelize, Sequelize) => {
     groupid: {
       type: Sequelize.INTEGER
     },
-    lessonInfoid: {
+    lessoninfoid: {
       type: Sequelize.INTEGER
     },
   });

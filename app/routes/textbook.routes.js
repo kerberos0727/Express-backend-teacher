@@ -22,6 +22,7 @@ module.exports = function (app) {
 
   app.get("/api/textbooks/all", [authJwt.verifyToken], controller.getAll);
   app.get("/api/textbooks/:userid", [authJwt.verifyToken], controller.getPerson);
+  app.get("/api/textbooks/lesson/:userid", [authJwt.verifyToken], controller.getInfoForPerLesson);
   app.get("/api/textbooks/:textbookid", [authJwt.verifyToken], controller.getPerTextbookInfo);
 
 };
