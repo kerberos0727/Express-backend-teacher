@@ -12,5 +12,6 @@ module.exports = function (app) {
   });
 
   app.get("/api/bills/all/:pagenum/:limitnum", [authJwt.verifyToken], controller.getAll);
-
+  app.post("/api/bills/search", [authJwt.verifyToken], controller.Search);
+  app.get("/api/bills/:id", [authJwt.verifyToken], controller.getPerson);
 };

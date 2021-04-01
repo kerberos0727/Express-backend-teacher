@@ -28,7 +28,7 @@ exports.getPerson = async (req, res) => {
 exports.getInfoForPerLesson = async (req, res) => {
   var id = req.params.userid;
   console.log('id------------------------------>', id)
-  // await db.sequelize.query("SELECT textBookDetails.* , textBooks.name AS textBookName, `from`, `to`, IF(`from`=`to`, `from`, CONCAT(`from`,'-',`to`)) AS pages FROM `textBookDetails` LEFT JOIN textBooks ON textBooks.id = textbookid LEFT JOIN pageRanges ON textBookDetails.id = pageRanges.lessonContentsid WHERE textBookDetails.lessonid = " + id + " ORDER BY id, `from`" + id, { type: QueryTypes.SELECT })
+  // await db.sequelize.query("SELECT textbookdetails.* , textbooks.name AS textBookName, `from`, `to`, IF(`from`=`to`, `from`, CONCAT(`from`,'-',`to`)) AS pages FROM `textbookdetails` LEFT JOIN textbooks ON textbooks.id = textbookid LEFT JOIN pageranges ON textbookdetails.id = pageranges.lessonContentsid WHERE textbookdetails.lessonid = " + id + " ORDER BY id, `from`" + id, { type: QueryTypes.SELECT })
   //   .then(function (projects) {
   //     return res.status(200).send({
   //       textbooks: projects,

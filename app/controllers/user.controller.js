@@ -1,28 +1,17 @@
 var Base64 = require('js-base64');
 const db = require("../models");
-const User = db.user;
+const User = db.users;
 const Role = db.role;
 var hasher = require('wordpress-hash-node');
 const Crypto = require('../config/crypt.pass');
 
-exports.findAll = (req, res) => {
-  User.find({})
-    .populate('roles')
-    .exec((err, users) => {
-      if (err) {
-        res.status(500).send({ message: err });
-        return;
-      }
-
-      if (!users) {
-        return res.status(404).send({ message: "Users Not found." });
-      }
-
-      let result = users.map((el) => {
-        return el.toUserJson()
-      })
-      // console.log(result)
-      res.status(200).send(result);
+exports.getAll = (req, res) => {
+  User.findAll()
+    .then(data => {
+      res.status(200).send({
+        users: data,
+        success: true
+      });
     });
 };
 

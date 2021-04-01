@@ -49,9 +49,14 @@ exports.delete = async (req, res) => {
 }
 
 exports.getPerson = async (req, res) => {
-  let lessonid = req.params.lessonid
-  let topicsName = req.params.topicsName
-  await db.sequelize.query("SELECT lessons.id, lessonDate, lessons.teacherid, lessons.startTime, lessons.endTime, lessons.groupid, teachers.name AS teacher, languages.name AS LANGUAGE, classes.name AS LEVEL, groups.name AS groupName, lessoninfo.name AS lessoninfo, 1 AS isLesson, lessons.teacherid AS actualTeacher, rooms.name AS actualRoomName, groups.roomid AS actualRoom, topics.name AS topicName  FROM lessons LEFT JOIN teachers ON teacherid = teachers.id LEFT JOIN languages ON languageid = languages.id LEFT JOIN classes ON classid = classes.id LEFT JOIN lessoninfo ON lessoninfoid = lessoninfo.id LEFT JOIN groups ON lessons.groupid = groups.id LEFT JOIN rooms ON rooms.id = groups.roomid LEFT JOIN lessonstopics ON lessonstopics.lessonid = lessons.id LEFT JOIN topics ON lessonstopics.topicid = topics.id where lessons.id='" + lessonid + "' and topics.name='" + topicsName + "' ORDER BY lessonDate DESC, startTime DESC, endTime DESC", { type: QueryTypes.SELECT })
+  let lessonid = req.params.lessonid;
+  let topicsName = req.params.topicsName;
+  let sql = "SELECT lessons.id, lessonDate, lessons.teacherid, lessons.startTime, lessons.endTime, lessons.groupid, teachers.name AS teacher, languages.name AS LANGUAGE, classes.name AS LEVEL, groups.name AS groupName, lessoninfo.name AS lessoninfo, 1 AS isLesson, lessons.teacherid AS actualTeacher, rooms.name AS actualRoomName, groups.roomid AS actualRoom, topics.name AS topicName  FROM lessons LEFT JOIN teachers ON teacherid = teachers.id LEFT JOIN languages ON languageid = languages.id LEFT JOIN classes ON classid = classes.id LEFT JOIN lessoninfo ON lessoninfoid = lessoninfo.id LEFT JOIN groups ON lessons.groupid = groups.id LEFT JOIN rooms ON rooms.id = groups.roomid LEFT JOIN lessonstopics ON lessonstopics.lessonid = lessons.id LEFT JOIN topics ON lessonstopics.topicid = topics.id where lessons.id='" + lessonid + "' ";
+  if (topicsName !== 'edit')
+    sql += "and topics.name='" + topicsName + "' ";
+  sql += "ORDER BY lessonDate DESC, startTime DESC, endTime DESC";
+  // await db.sequelize.query("SELECT lessons.id, lessonDate, lessons.teacherid, lessons.startTime, lessons.endTime, lessons.groupid, teachers.name AS teacher, languages.name AS LANGUAGE, classes.name AS LEVEL, groups.name AS groupName, lessoninfo.name AS lessoninfo, 1 AS isLesson, lessons.teacherid AS actualTeacher, rooms.name AS actualRoomName, groups.roomid AS actualRoom, topics.name AS topicName  FROM lessons LEFT JOIN teachers ON teacherid = teachers.id LEFT JOIN languages ON languageid = languages.id LEFT JOIN classes ON classid = classes.id LEFT JOIN lessoninfo ON lessoninfoid = lessoninfo.id LEFT JOIN groups ON lessons.groupid = groups.id LEFT JOIN rooms ON rooms.id = groups.roomid LEFT JOIN lessonstopics ON lessonstopics.lessonid = lessons.id LEFT JOIN topics ON lessonstopics.topicid = topics.id where lessons.id='" + lessonid + "' and topics.name='" + topicsName + "' ORDER BY lessonDate DESC, startTime DESC, endTime DESC", { type: QueryTypes.SELECT })
+  await db.sequelize.query(sql, { type: QueryTypes.SELECT })
     .then(function (projects) {
       return res.status(200).send({
         lesson: projects,
@@ -65,7 +70,7 @@ exports.Search = async (req, res) => {
   let limitnum = req.body.limitnum;
   let searchVals = req.body.searchVals;
   let total_count = 0, totalSql = '';
-  let sql = " SELECT lessons.id, lessonDate, lessons.teacherid, lessons.startTime, lessons.endTime, lessons.groupid, teachers.name AS teacher, languages.name AS LANGUAGE, classes.name AS LEVEL, groups.name AS groupName, lessonInfo.name AS lessonInfo, 1 AS isLesson, lessons.teacherid AS actualTeacher, rooms.name AS actualRoomName, groups.roomid AS actualRoom FROM lessons   LEFT JOIN teachers ON teacherid = teachers.id   LEFT JOIN languages ON languageid = languages.id LEFT JOIN classes ON classid = classes.id   LEFT JOIN lessonInfo ON lessonInfoid = lessonInfo.id  LEFT JOIN groups ON lessons.groupid = groups.id LEFT JOIN rooms ON rooms.id = groups.roomid WHERE (1 OR 0) AND 1=1 ";
+  let sql = " SELECT lessons.id, lessonDate, lessons.teacherid, lessons.startTime, lessons.endTime, lessons.groupid, teachers.name AS teacher, languages.name AS LANGUAGE, classes.name AS LEVEL, groups.name AS groupName, lessoninfo.name AS lessoninfo, 1 AS isLesson, lessons.teacherid AS actualTeacher, rooms.name AS actualRoomName, groups.roomid AS actualRoom FROM lessons   LEFT JOIN teachers ON teacherid = teachers.id   LEFT JOIN languages ON languageid = languages.id LEFT JOIN classes ON classid = classes.id   LEFT JOIN lessoninfo ON lessoninfoid = lessoninfo.id  LEFT JOIN groups ON lessons.groupid = groups.id LEFT JOIN rooms ON rooms.id = groups.roomid WHERE (1 OR 0) AND 1=1 ";
   if (searchVals.dateFrom)
     sql += "AND lessons.lessonDate >= " + searchVals.dateFrom.substr(0, 10) + " ";
   if (searchVals.dateTo)
@@ -107,7 +112,7 @@ exports.Search = async (req, res) => {
 
 exports.getInfoForPerLesson = async (req, res) => {
   var id = req.params.lessonid;
-  await db.sequelize.query("SELECT textBookDetails.* , textBooks.name AS textBookName, `from`, `to`, IF(`from`=`to`, `from`, CONCAT(`from`,'-',`to`)) AS pages FROM `textBookDetails` LEFT JOIN textBooks ON textBooks.id = textbookid LEFT JOIN pageRanges ON textBookDetails.id = pageRanges.lessonContentsid WHERE textBookDetails.lessonid = " + id + " ORDER BY id, `from`", { type: QueryTypes.SELECT })
+  await db.sequelize.query("SELECT textbookdetails.* , textbooks.name AS textBookName, `from`, `to`, IF(`from`=`to`, `from`, CONCAT(`from`,'-',`to`)) AS pages FROM `textbookdetails` LEFT JOIN textbooks ON textbooks.id = textbookid LEFT JOIN pageranges ON textbookdetails.id = pageranges.lessonContentsid WHERE textbookdetails.lessonid = " + id + " ORDER BY id, `from`", { type: QueryTypes.SELECT })
     .then(function (projects) {
       return res.status(200).send({
         textbooks: projects,
@@ -190,13 +195,13 @@ exports.update = async (req, res) => {
     await db.sequelize.query("DELETE FROM `textbookdetails` WHERE lessonid='" + lessonid + "' AND textBookid='" + textbooks[j].textBookid + "';", { type: QueryTypes.DELETE })
   }
   for (var j = 0; j < textbooks.length; j++) {
-    await db.sequelize.query("INSERT INTO `textbookdetails` (`lessonid`, `textBookid`, `unit`, `homework`, `exercise`) VALUES ('" + lessonid + "', '" + textbooks[j].textBookid + "', '" + textbooks[j].unit+ "', '" + textbooks[j].homework+ "', '" + textbooks[j].exercise + "');", { type: QueryTypes.UPDATE })
+    await db.sequelize.query("INSERT INTO `textbookdetails` (`lessonid`, `textBookid`, `unit`, `homework`, `exercise`) VALUES ('" + lessonid + "', '" + textbooks[j].textBookid + "', '" + textbooks[j].unit + "', '" + textbooks[j].homework + "', '" + textbooks[j].exercise + "');", { type: QueryTypes.UPDATE })
       .then(reg => {
         textbookdetailsflag = true;
       })
   }
 
-  await db.sequelize.query("UPDATE `classid` SET `lessonid`='" + lessonid + "',`startTime`='" + values.startTime.substr(11, values.startTime.length) + "',`endTime`='" + values.endTime.substr(11, values.endTime.length) + "',`lessonDate`='" + values.lessonDate.substr(0, 10) + "',`languageid`='" + combovalues.languageId + "',`teacherid`='" + combovalues.teacherId + "',`groupid`='" + combovalues.levelId + "',`lessonInfoid`='" + combovalues.lessoninfoId + "' WHERE `lessonid` = " + lessonid + ";", { type: QueryTypes.UPDATE })
+  await db.sequelize.query("UPDATE `classid` SET `lessonid`='" + lessonid + "',`startTime`='" + values.startTime.substr(11, values.startTime.length) + "',`endTime`='" + values.endTime.substr(11, values.endTime.length) + "',`lessonDate`='" + values.lessonDate.substr(0, 10) + "',`languageid`='" + combovalues.languageId + "',`teacherid`='" + combovalues.teacherId + "',`groupid`='" + combovalues.levelId + "',`lessoninfoid`='" + combovalues.lessoninfoId + "' WHERE `lessonid` = " + lessonid + ";", { type: QueryTypes.UPDATE })
     .then(reg => {
       return res.status(200).send({
         success: true
