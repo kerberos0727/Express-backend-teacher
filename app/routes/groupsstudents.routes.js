@@ -12,5 +12,6 @@ module.exports = function (app) {
   });
 
   app.get("/api/groupsstudents/:userid", [authJwt.verifyToken], controller.get_per_group_ids);
+  app.get("/api/pergroupsstudents/:studentid", [authJwt.verifyToken], controller.get_per_group_students);
 
 };

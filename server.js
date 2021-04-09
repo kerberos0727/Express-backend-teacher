@@ -4,6 +4,7 @@ const cors = require("cors");
 const path = require('path');
 const app = express();
 // app.use(express.static(__dirname+'/public'));
+app.use(bodyParser({limit: '50mb'}));
 var multer = require('multer');
 app.use(cors());
 var storage = multer.diskStorage({
@@ -53,6 +54,7 @@ require("./app/routes/lesson.routes")(app);
 require("./app/routes/teacher.routes")(app);
 require("./app/routes/lessoninfo.routes")(app);
 require("./app/routes/topics.routes")(app);
+require("./app/routes/room.routes")(app);
 
 app.post('/upload', function (req, res) {
   upload(req, res, function (err) {

@@ -71,24 +71,24 @@ exports.Search = async (req, res) => {
   let searchVals = req.body.searchVals;
   let total_count = 0, totalSql = '';
   let sql = " SELECT lessons.id, lessonDate, lessons.teacherid, lessons.startTime, lessons.endTime, lessons.groupid, teachers.name AS teacher, languages.name AS LANGUAGE, classes.name AS LEVEL, groups.name AS groupName, lessoninfo.name AS lessoninfo, 1 AS isLesson, lessons.teacherid AS actualTeacher, rooms.name AS actualRoomName, groups.roomid AS actualRoom FROM lessons   LEFT JOIN teachers ON teacherid = teachers.id   LEFT JOIN languages ON languageid = languages.id LEFT JOIN classes ON classid = classes.id   LEFT JOIN lessoninfo ON lessoninfoid = lessoninfo.id  LEFT JOIN groups ON lessons.groupid = groups.id LEFT JOIN rooms ON rooms.id = groups.roomid WHERE (1 OR 0) AND 1=1 ";
-  if (searchVals.dateFrom)
+  if (searchVals.dateFrom !== '' && searchVals.dateFrom !== undefined)
     sql += "AND lessons.lessonDate >= " + searchVals.dateFrom.substr(0, 10) + " ";
-  if (searchVals.dateTo)
+  if (searchVals.dateTo !== '' && searchVals.dateTo !== undefined)
     sql += "AND lessons.lessonDate <= " + searchVals.dateTo.substr(0, 10) + " ";
-  if (searchVals.teacher)
+  if (searchVals.teacher !== '' && searchVals.teacher !== undefined)
     sql += "AND teachers.id = '" + searchVals.teacher + "' ";
-  if (searchVals.level)
+  if (searchVals.level !== '' && searchVals.level !== undefined)
     sql += "AND lessons.classid = '" + searchVals.level + "' ";
-  if (searchVals.language)
+  if (searchVals.language !== '' && searchVals.language !== undefined)
     sql += "AND lessons.languageid = '" + searchVals.language + "' ";
-  if (searchVals.hourFrom)
+  if (searchVals.hourFrom !== '' && searchVals.hourFrom !== undefined)
     sql += "AND lessons.startTime >= " + searchVals.hourFrom + " ";
-  if (searchVals.hourTo)
+  if (searchVals.hourTo !== '' && searchVals.hourTo !== undefined)
     sql += "AND lessons.endTime <= " + searchVals.hourTo + " ";
-  if (searchVals.group)
+  if (searchVals.group !== '' && searchVals.group !== undefined)
     sql += "AND lessons.groupid = '" + searchVals.group + "' ";
-  if (searchVals.observation)
-    sql += "AND lessons.id IN '" + searchVals.observation + "' ";
+  if (searchVals.observation !== '' && searchVals.observation !== undefined)
+    sql += "AND lessons.id IN " + searchVals.observation + " ";
 
 
   sql += "ORDER BY id DESC";
@@ -166,12 +166,15 @@ exports.update = async (req, res) => {
   let combovalues = req.body.combovalues;
   let values = req.body.values;
   let students = req.body.students;
+  let oldstudents = req.body.oldstudents;
   let topics = req.body.topics;
+  let oldtopics = req.body.oldtopics;
   let textbooks = req.body.textbooks;
+  let oldtextbooks = req.body.oldtextbooks;
   let maxnum = maximum(students.length, topics.length, textbooks.length);
   let lessonsstudentsflag = false, lessonstopicsflag = false, textbookdetailsflag = false, lessonsflag = false;
 
-  for (var j = 0; j < students.length; j++) {
+  for (var j = 0; j < oldstudents.length; j++) {
     await db.sequelize.query("DELETE FROM `lessonsstudents` WHERE lessonid='" + lessonid + "' AND studentid='" + students[j].id + "';", { type: QueryTypes.DELETE })
   }
   for (var j = 0; j < students.length; j++) {
@@ -181,7 +184,7 @@ exports.update = async (req, res) => {
       })
   }
 
-  for (var j = 0; j < topics.length; j++) {
+  for (var j = 0; j < oldtopics.length; j++) {
     await db.sequelize.query("DELETE FROM `lessonstopics` WHERE lessonid='" + lessonid + "' AND topicid='" + topics[j].id + "';", { type: QueryTypes.DELETE })
   }
   for (var j = 0; j < students.length; j++) {
@@ -191,7 +194,7 @@ exports.update = async (req, res) => {
       })
   }
 
-  for (var j = 0; j < textbooks.length; j++) {
+  for (var j = 0; j < oldtextbooks.length; j++) {
     await db.sequelize.query("DELETE FROM `textbookdetails` WHERE lessonid='" + lessonid + "' AND textBookid='" + textbooks[j].textBookid + "';", { type: QueryTypes.DELETE })
   }
   for (var j = 0; j < textbooks.length; j++) {
@@ -201,7 +204,7 @@ exports.update = async (req, res) => {
       })
   }
 
-  await db.sequelize.query("UPDATE `classid` SET `lessonid`='" + lessonid + "',`startTime`='" + values.startTime.substr(11, values.startTime.length) + "',`endTime`='" + values.endTime.substr(11, values.endTime.length) + "',`lessonDate`='" + values.lessonDate.substr(0, 10) + "',`languageid`='" + combovalues.languageId + "',`teacherid`='" + combovalues.teacherId + "',`groupid`='" + combovalues.levelId + "',`lessoninfoid`='" + combovalues.lessoninfoId + "' WHERE `lessonid` = " + lessonid + ";", { type: QueryTypes.UPDATE })
+  await db.sequelize.query("UPDATE `lessons` SET `classid`='" + combovalues.levelId + "', `startTime`='" + values.startTime.substr(11, values.startTime.length) + "', `endTime`='" + values.endTime.substr(11, values.endTime.length) + "', `lessonDate`='" + values.lessonDate.substr(0, 10) + "', `languageid`='" + combovalues.languageId + "', `teacherid`='" + combovalues.teacherId + "',`groupid`='" + combovalues.groupnameId + "',`lessoninfoid`='" + combovalues.lessoninfoId + "' WHERE `id` = " + lessonid + ";", { type: QueryTypes.UPDATE })
     .then(reg => {
       return res.status(200).send({
         success: true

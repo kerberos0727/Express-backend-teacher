@@ -20,9 +20,16 @@ module.exports = function (app) {
   //   controller.create
   // );
 
-  app.get("/api/textbooks/all", [authJwt.verifyToken], controller.getAll);
+  app.get("/api/textbooks/all", [authJwt.verifyToken], controller.getAll1);
+  app.get("/api/textbooks/all/:pagenum/:limitnum", [authJwt.verifyToken], controller.getAll);
   app.get("/api/textbooks/:userid", [authJwt.verifyToken], controller.getPerson);
+  app.post("/api/textbooks/teachers", [authJwt.verifyToken], controller.getPersonTeachers);
+  app.post("/api/textbooks/students", [authJwt.verifyToken], controller.getPersonStudents);
   app.get("/api/textbooks/lesson/:userid", [authJwt.verifyToken], controller.getInfoForPerLesson);
-  app.get("/api/textbooks/:textbookid", [authJwt.verifyToken], controller.getPerTextbookInfo);
+  app.get("/api/textbooks/perInfo/:textbookid", [authJwt.verifyToken], controller.getPerTextbookInfo);
+  app.post("/api/textbooks/search", [authJwt.verifyToken], controller.Search);
+  app.delete("/api/textbooks/:textbookid", [authJwt.verifyToken], controller.delete);
+  app.post("/api/textbooks/create", [authJwt.verifyToken], controller.create);
+  app.put("/api/textbooks/update", [authJwt.verifyToken], controller.update);
 
 };

@@ -10,8 +10,12 @@ module.exports = function (app) {
     next();
   });
 
-  app.get("/api/group/all", [authJwt.verifyToken], controller.getAll);
+  app.get("/api/group/all/:pagenum/:limitnum", [authJwt.verifyToken], controller.getAll);
+  app.get("/api/group/all", [authJwt.verifyToken], controller.getAll1);
+  app.post("/api/group/search", [authJwt.verifyToken], controller.Search);
   app.get("/api/group/:groupid", [authJwt.verifyToken], controller.getPersongroup);
   app.post("/api/group/customAll", [authJwt.verifyToken], controller.getCustomgroup);
-
+  app.post("/api/group/create", [authJwt.verifyToken], controller.create);
+  app.put("/api/group/update", [authJwt.verifyToken], controller.update);
+  app.delete("/api/group/:groupid", [authJwt.verifyToken], controller.delete);
 };
