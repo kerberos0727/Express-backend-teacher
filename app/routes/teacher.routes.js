@@ -10,6 +10,12 @@ module.exports = function (app) {
     next();
   });
 
-  app.get("/api/teacher/all", [authJwt.verifyToken], controller.getAll);
+  app.get("/api/teacher/all", [authJwt.verifyToken], controller.getAll1);
+  app.post("/api/teacher/all", [authJwt.verifyToken], controller.getAll);
+  app.post("/api/teacher/person", [authJwt.verifyToken], controller.getPerson);
+  app.get("/api/teacher/edit/:id", [authJwt.verifyToken], controller.getDataForEdit);
+  app.put("/api/teacher/update", [authJwt.verifyToken], controller.update);
+  app.post("/api/teacher/create", [authJwt.verifyToken], controller.create);
+  app.delete("/api/teacher/:teacherid", [authJwt.verifyToken], controller.delete);
 
 };

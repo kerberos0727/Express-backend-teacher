@@ -55,6 +55,8 @@ require("./app/routes/teacher.routes")(app);
 require("./app/routes/lessoninfo.routes")(app);
 require("./app/routes/topics.routes")(app);
 require("./app/routes/room.routes")(app);
+require("./app/routes/more.routes")(app);
+require("./app/routes/markingscheme.routes")(app);
 
 app.post('/upload', function (req, res) {
   upload(req, res, function (err) {

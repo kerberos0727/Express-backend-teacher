@@ -212,7 +212,7 @@ exports.update = async (req, res) => {
       mark = '';
     if (students[j].status === '' || students[j].status === undefined)
       status = 1;
-    await db.sequelize.query("INSERT INTO persontextbooks (personid, textbookid, mark, STATUS, amount) VALUES (" + students[j].id + ", " + textbookid + ", '" + mark + "', " + status + ", 1);", { type: QueryTypes.INSERT })
+    await db.sequelize.query("INSERT INTO persontextbooks (personid, textbookid, mark, `status`, amount) VALUES (" + students[j].id + ", " + textbookid + ", '" + mark + "', " + status + ", 1);", { type: QueryTypes.INSERT })
   }
 
   await db.sequelize.query("UPDATE `textbooks` SET `name`='" + values.name + "',`stock`='" + values.stock + "',`status`='" + values.status + "',`nearmid`='" + values.nearMid + "',`nearend`='" + values.nearEnd + "',`midpoint`='" + values.midPoint + "' WHERE `id` = " + textbookid + ";", { type: QueryTypes.UPDATE })
