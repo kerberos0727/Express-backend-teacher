@@ -1,6 +1,7 @@
 const db = require("../models");
 const Exam = db.exams;
 const Scheme = db.schemes;
+const Contract = db.contracts;
 const { QueryTypes, sequelize } = require('sequelize');
 
 exports.getAll = async (req, res) => {
@@ -142,6 +143,19 @@ exports.getPersonscheme = async (req, res) => {
     })
 };
 
+exports.create = async (req, res) => {
+  let data = req.body;
+  await db.sequelize.query("INSERT INTO `exams` (`textbookid`, `teacherid`, `type`, `name`, `examDate`, `groupid`, `scheduled`, `markingscheme`) VALUES ('" + data.textbookid + "', '" + data.teacherid + "', '" + data.type + "', '" + data.name + "', '" + data.examDate + "', '" + data.groupid + "', '" + data.scheduled + "', '" + data.markingscheme + "');", { type: QueryTypes.INSERT })
+    .then(reg => {
+      return res.status(200).send({
+        success: true
+      });
+    }).catch(err => {
+      res.status(500).send({
+        success: false
+      });
+    });
+}
 
 exports.update = async (req, res) => {
   let data = req.body;
@@ -184,4 +198,118 @@ exports.createscheme = async (req, res) => {
       });
     });
 
+}
+
+
+exports.getContractAll = async (req, res) => {
+  let pagenum = req.body.pagenum;
+  let limitnum = req.body.limitnum;
+  let searchVal = req.body.searchVal;
+  let Qeury = "";
+
+  Qeury += "SELECT a.id, a.name, a.hours, REPLACE(GROUP_CONCAT(ROUND(cents/100,0)),',',' + ') AS cost, ROUND(SUM(cents/100),2)  AS total FROM contracts AS a JOIN contractpayments AS b ON a.id = b.contractid ";
+  Qeury += "WHERE 1=1 ";
+  if (searchVal.name !== '' && searchVal.name !== undefined)
+    Qeury += "AND a.name LIKE '%" + searchVal.name + "%' ";
+  totalQuery = "SELECT * FROM contracts;";
+  Qeury += "GROUP BY a.id ORDER BY a.id DESC LIMIT " + pagenum + ", " + limitnum;
+
+  await db.sequelize.query(totalQuery, { type: QueryTypes.SELECT })
+    .then(function (projects) {
+      total_count = projects.length;
+    })
+
+  await db.sequelize.query(Qeury, { type: QueryTypes.SELECT })
+    .then(function (projects) {
+      return res.status(200).send({
+        total: total_count,
+        contracts: projects,
+        success: true
+      });
+    })
+};
+
+
+exports.deletecontract = async (req, res) => {
+  var id = req.params.contractid;
+  Contract.destroy({
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Contract was deleted successfully!",
+          success: true
+        });
+      } else {
+        res.send({
+          message: `Cannot delete Contract with id=${id}. Maybe Contract was not found!`,
+          success: false
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Could not delete Contract with id=" + id,
+        success: false
+      });
+    });
+}
+
+exports.getPersoncontract = async (req, res) => {
+  let id = req.params.contractid;
+
+  await db.sequelize.query("SELECT a.id, a.name, a.hours, ROUND(b.cents/100,0) AS cost FROM contracts AS a JOIN contractpayments AS b ON a.id = b.contractid WHERE a.id = " + id, { type: QueryTypes.SELECT })
+    .then(function (projects) {
+      return res.status(200).send({
+        contract: projects,
+        success: true
+      });
+    })
+};
+
+
+exports.createcontract = async (req, res) => {
+  let values = req.body.values;
+  let payments = req.body.payments;
+  let latestId = 0;
+  await db.sequelize.query("INSERT INTO contracts SET `name` = '" + values.name + "', hours='" + values.hours + "';", { type: QueryTypes.INSERT })
+    .then(reg => {
+      return res.status(200).send({
+        success: true
+      });
+    }).catch(err => {
+      res.status(500).send({
+        success: false
+      });
+    });
+  await db.sequelize.query("SELECT * FROM contracts ORDER BY id DESC;", { type: QueryTypes.SELECT })
+    .then(function (projects) {
+      latestId = projects[0].id
+    })
+  for (let i = 0; i < payments.length; i++) {
+    await db.sequelize.query("INSERT INTO contractpayments SET contractid = " + latestId + ", paymentorder = " + i + ", cents = " + parseInt(payments[i] + '00') + "", { type: QueryTypes.INSERT })
+  }
+}
+
+exports.updatecontract = async (req, res) => {
+  let id = req.body.id;
+  let values = req.body.values;
+  let payments = req.body.payments;
+
+  await db.sequelize.query("UPDATE contracts SET `name` = '" + values.name + "' , `hours` = '" + values.hours + "' WHERE `id` = '" + id + "';", { type: QueryTypes.UPDATE })
+    .then(reg => {
+      return res.status(200).send({
+        success: true
+      });
+    }).catch(err => {
+      res.status(500).send({
+        success: false
+      });
+    });
+  await db.sequelize.query("DELETE FROM contractpayments WHERE contractid =" + id + ";", { type: QueryTypes.DELETE })
+
+  for (let i = 0; i < payments.length; i++) {
+    await db.sequelize.query("INSERT INTO contractpayments SET contractid = " + id + ", paymentorder = " + i + ", cents = " + parseInt(payments[i] + '00') + "", { type: QueryTypes.INSERT })
+  }
 }

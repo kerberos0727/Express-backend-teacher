@@ -58,5 +58,6 @@ db.lessoninfo = require("./lessoninfo.model.js")(sequelize, Sequelize);
 db.rooms = require("./room.model.js")(sequelize, Sequelize);
 db.exams = require("./exams.model.js")(sequelize, Sequelize);
 db.schemes = require("./markingscheme.model.js")(sequelize, Sequelize);
+db.contracts = require("./contract.model.js")(sequelize, Sequelize);
 
 module.exports = db;
