@@ -29,4 +29,10 @@ module.exports = function (app) {
   app.post("/api/more/contract/create", [authJwt.verifyToken], controller.createcontract);
   app.put("/api/more/contract/update", [authJwt.verifyToken], controller.updatecontract);
 
+  // certification
+  app.post("/api/more/certification/all", [authJwt.verifyToken], controller.getCertificationAll);
+  app.get("/api/more/certification/:certificateid", [authJwt.verifyToken], controller.getPersoncertification);
+  app.delete("/api/more/certification/:certificateid", [authJwt.verifyToken], controller.deletecertification);
+  app.put("/api/more/certification/update", [authJwt.verifyToken], controller.updatecertification);
+
 };

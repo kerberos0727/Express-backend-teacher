@@ -2,6 +2,7 @@ const db = require("../models");
 const Exam = db.exams;
 const Scheme = db.schemes;
 const Contract = db.contracts;
+const Certificate = db.certificats;
 const { QueryTypes, sequelize } = require('sequelize');
 
 exports.getAll = async (req, res) => {
@@ -313,3 +314,108 @@ exports.updatecontract = async (req, res) => {
     await db.sequelize.query("INSERT INTO contractpayments SET contractid = " + id + ", paymentorder = " + i + ", cents = " + parseInt(payments[i] + '00') + "", { type: QueryTypes.INSERT })
   }
 }
+
+
+
+// certification start
+exports.getCertificationAll = async (req, res) => {
+  let pagenum = req.body.pagenum;
+  let limitnum = req.body.limitnum;
+  let searchVal = req.body.searchVal;
+  let Qeury = "", objTotal = [];
+
+  Qeury += "SELECT certificates.*, users.name AS `user`, classes.name AS `level` FROM certificates LEFT JOIN  users ON certificates.userid = users.id LEFT JOIN classes ON certificates.levelid = classes.id ";
+  Qeury += "WHERE 1=1 ";
+
+  await db.sequelize.query(Qeury, { type: QueryTypes.SELECT })
+    .then(function (projects) {
+      objTotal = projects;
+    })
+
+  if (!searchVal.current && searchVal.certificateId === 0) {
+    if (searchVal.name !== '' && searchVal.name !== undefined)
+      Qeury += "AND (users.name LIKE '%" + searchVal.name + "%' OR certificates.studentname LIKE '%" + searchVal.name + "%' OR certificates.username LIKE '%word%' OR 0) ";
+
+    if (searchVal.startdate !== '' && searchVal.startdate !== undefined)
+      Qeury += "AND startdate >= '" + searchVal.startdate + "' ";
+
+    if (searchVal.enddate !== '' && searchVal.enddate !== undefined)
+      Qeury += "AND enddate <= '" + searchVal.enddate + "' ";
+  }
+  if (searchVal.current && searchVal.certificateId > 0)
+    Qeury += "AND certificates.studentid = " + searchVal.certificateId + " ";
+
+  totalQuery = Qeury;
+  Qeury += "ORDER BY id DESC LIMIT " + pagenum + ", " + limitnum;
+
+  await db.sequelize.query(totalQuery, { type: QueryTypes.SELECT })
+    .then(function (projects) {
+      total_count = projects.length;
+    })
+
+  await db.sequelize.query(Qeury, { type: QueryTypes.SELECT })
+    .then(function (projects) {
+      return res.status(200).send({
+        total: total_count,
+        objTotal: objTotal,
+        certifications: projects,
+        success: true
+      });
+    })
+};
+
+exports.getPersoncertification = async (req, res) => {
+  let id = req.params.certificateid;
+  await db.sequelize.query("SELECT certificates.*, users.name AS `user`, classes.name AS `level` FROM certificates LEFT JOIN  users ON certificates.userid = users.id LEFT JOIN classes ON certificates.levelid = classes.id WHERE 1=1 AND certificates.id = " + id, { type: QueryTypes.SELECT })
+    .then(function (projects) {
+      return res.status(200).send({
+        certificate: projects,
+        success: true
+      });
+    })
+};
+
+exports.deletecertification = async (req, res) => {
+  var id = req.params.certificateid;
+  Certificate.destroy({
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Certificate was deleted successfully!",
+          success: true
+        });
+      } else {
+        res.send({
+          message: `Cannot delete Certificate with id=${id}. Maybe Certificate was not found!`,
+          success: false
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Could not delete Certificate with id=" + id,
+        success: false
+      });
+    });
+}
+
+exports.updatecertification = async (req, res) => {
+  let id = req.body.id;
+  let originData = req.body.originData;
+  let newData = req.body.newData;
+
+  await db.sequelize.query("UPDATE users SET title = '" + newData.title + "', fullname='" + newData.userName + "' WHERE id = " + originData.userid + ";", { type: QueryTypes.UPDATE })
+  await db.sequelize.query("UPDATE certificates SET studentname='" + newData.studentName + "', idnumber='" + newData.IDNumber + "', title='" + newData.title + "', levelid=" + newData.levelId + ", issuedate='" + newData.issueDate + "', startdate='" + newData.startDate + "', enddate='" + newData.endDate + "', mins='" + newData.mins + "', `userName`='" + newData.userName + "' WHERE `id` = '" + originData.id + "';", { type: QueryTypes.UPDATE })
+    .then(reg => {
+      return res.status(200).send({
+        success: true
+      });
+    }).catch(err => {
+      res.status(500).send({
+        success: false
+      });
+    });
+}
+// certification end
