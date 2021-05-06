@@ -34,5 +34,6 @@ module.exports = function (app) {
   app.get("/api/more/certification/:certificateid", [authJwt.verifyToken], controller.getPersoncertification);
   app.delete("/api/more/certification/:certificateid", [authJwt.verifyToken], controller.deletecertification);
   app.put("/api/more/certification/update", [authJwt.verifyToken], controller.updatecertification);
+  app.post("/api/more/certification/create", [authJwt.verifyToken], controller.postcertification);
 
 };

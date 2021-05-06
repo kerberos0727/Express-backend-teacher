@@ -402,12 +402,28 @@ exports.deletecertification = async (req, res) => {
 }
 
 exports.updatecertification = async (req, res) => {
-  let id = req.body.id;
   let originData = req.body.originData;
   let newData = req.body.newData;
 
   await db.sequelize.query("UPDATE users SET title = '" + newData.title + "', fullname='" + newData.userName + "' WHERE id = " + originData.userid + ";", { type: QueryTypes.UPDATE })
   await db.sequelize.query("UPDATE certificates SET studentname='" + newData.studentName + "', idnumber='" + newData.IDNumber + "', title='" + newData.title + "', levelid=" + newData.levelId + ", issuedate='" + newData.issueDate + "', startdate='" + newData.startDate + "', enddate='" + newData.endDate + "', mins='" + newData.mins + "', `userName`='" + newData.userName + "' WHERE `id` = '" + originData.id + "';", { type: QueryTypes.UPDATE })
+    .then(reg => {
+      return res.status(200).send({
+        success: true
+      });
+    }).catch(err => {
+      res.status(500).send({
+        success: false
+      });
+    });
+}
+
+exports.postcertification = async (req, res) => {
+  let originData = req.body.originData;
+  let newData = req.body.newData;
+
+  await db.sequelize.query("UPDATE users SET title = '" + newData.title + "', fullname='" + newData.userName + "' WHERE id = " + originData.id + ";", { type: QueryTypes.UPDATE })
+  await db.sequelize.query("INSERT INTO certificates (`studentName`, `certNumber`, `userid`, `mins`, `studentid`, `issueDate`, `startDate`, `endDate`, `levelid`, `title`, `userName`, `IDNumber`) VALUES ('" + newData.studentName + "', '" + originData.certNumber + "', '" + originData.id + "', '" + newData.mins + "', '" + originData.studentId + "', '" + newData.issueDate + "', '" + newData.startDate + "', '" + newData.endDate + "', '" + newData.levelId + "', '" + newData.title + "', '" + newData.userName + "', '" + newData.IDNumber + "');", { type: QueryTypes.INSERT })
     .then(reg => {
       return res.status(200).send({
         success: true
